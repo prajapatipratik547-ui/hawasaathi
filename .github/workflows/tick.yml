@@ -1,0 +1,20 @@
+name: Tick (send due alerts)
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST /api/tick
+        env:
+          TICK_URL: ${{ secrets.TICK_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail --silent --show-error --max-time 300 \
+            -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            "$TICK_URL"

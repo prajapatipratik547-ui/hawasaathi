@@ -1,0 +1,10 @@
+# never upload secrets or local-only files to Vercel (env vars are set in the Vercel dashboard)
+.env
+.env.*
+!.env.example
+.venv/
+.codenow/
+__pycache__/
+*.pyc
+prompts/
+scripts/
