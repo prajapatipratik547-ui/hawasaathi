@@ -57,11 +57,15 @@ async def telegram_webhook(request: Request, x_telegram_bot_api_secret_token: st
     return JSONResponse({"ok": True})
 
 
-@app.post("/api/tick")
-async def tick_endpoint(x_cron_secret: str = Header(None)):
-    # called every 30 minutes by .github/workflows/tick.yml
+@app.api_route("/api/tick", methods=["GET", "POST"])
+async def tick_endpoint(x_cron_secret: str = Header(None), authorization: str = Header(None)):
+    # Called by several timers; running it extra times is safe (one morning alert per day,
+    # at most one spike alert per 3 hours):
+    # - cron-job.org every 15 minutes and GitHub Actions: POST with "X-Cron-Secret: <secret>"
+    # - Vercel's daily cron (vercel.json): GET with "Authorization: Bearer <secret>"
     cron_secret = os.getenv("CRON_SECRET")
-    if not cron_secret or not x_cron_secret or not hmac.compare_digest(x_cron_secret, cron_secret):
+    given = x_cron_secret or (authorization or "").removeprefix("Bearer ").strip()
+    if not cron_secret or not given or not hmac.compare_digest(given, cron_secret):
         raise HTTPException(status_code=403, detail="Invalid cron secret")
     return JSONResponse(await alerts.tick(telegram))
 

@@ -129,11 +129,10 @@ copy .env.example .env     # then fill in your own values
    .\.venv\Scripts\python.exe scripts\set_webhook.py https://<your-app>.vercel.app
    .\.venv\Scripts\python.exe scripts\set_webhook.py --info    # check: url set, no last_error_message
    ```
-4. **Turn on the scheduler:** in GitHub → Settings → Secrets and variables → Actions, add
-   - `TICK_URL` = `https://<your-app>.vercel.app/api/tick`
-   - `CRON_SECRET` = the same value as in Vercel
-
-   Then open **Actions → Tick → Run workflow** once to test it. After that it runs every 30 minutes. GitHub may start it a few minutes late, which is fine: morning alerts can go out any time in the 3 hours after the alert time.
+4. **Turn on the timers.** `/api/tick` sends whatever alerts are due. Calling it extra times is safe (one morning alert per day, at most one spike alert per 3 hours), so three timers run side by side:
+   - **[cron-job.org](https://cron-job.org) (main timer, every 15 minutes):** a free job that sends `POST https://<your-app>.vercel.app/api/tick` with the header `X-Cron-Secret: <CRON_SECRET>`.
+   - **Vercel Cron (daily safety net):** set in `vercel.json` (`0 2 * * *` = 7:30 AM IST). Vercel's free plan runs it once a day, somewhere in that hour, so morning alerts still go out if the other timers fail. Vercel signs in with `Authorization: Bearer <CRON_SECRET>` automatically.
+   - **GitHub Actions (backup):** `.github/workflows/tick.yml`. In GitHub → Settings → Secrets and variables → Actions, add `TICK_URL` = `https://<your-app>.vercel.app/api/tick` and `CRON_SECRET` = the same value as in Vercel. GitHub runs free scheduled workflows irregularly (we saw gaps of 4–7 hours), so it isn't the main timer.
 5. Open `https://<your-app>.vercel.app/stats`.
 
 ## Data sources
