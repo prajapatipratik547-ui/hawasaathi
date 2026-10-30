@@ -1,10 +1,11 @@
 """Tools the agent can call. Each returns a small dict that is sent back to the model as JSON."""
 from typing import Optional
 
+from air import current
 from air.advice import best_time_outside
 from air.geocode import geocode_area
 from air.naqi import india_aqi
-from air.openmeteo import get_air_quality, get_forecast
+from air.openmeteo import get_forecast
 from bot.texts import category_name
 
 SOURCE = "Open-Meteo satellite/model estimate"
@@ -58,19 +59,24 @@ TOOLS = [
 
 def current_air(lat: float, lng: float, area: Optional[str] = None) -> dict:
     """Current India AQI at a location, or {"error": ...}."""
-    data = get_air_quality(lat, lng)
-    if not data:
+    air = current.current_air(lat, lng)
+    if not air:
         return {"error": "no air-quality data right now"}
-    aqi, category = india_aqi(data.get("pm2_5_24h_avg"), data.get("pm10_24h_avg"))
-    if aqi is None:
-        return {"error": "not enough data to compute the AQI"}
+    station = air["station"]
+    if station:
+        source = (
+            f"official CPCB monitoring station '{station['name']}', {station['distance_km']} km away, "
+            f"last updated {station['updated'].strftime('%H:%M')} IST"
+        )
+    else:
+        source = SOURCE
     return {
         "area": area,
-        "india_aqi": aqi,
-        "category": category,
-        "pm2_5": data.get("pm2_5"),
-        "pm10": data.get("pm10"),
-        "source": SOURCE,
+        "india_aqi": air["india_aqi"],
+        "category": air["category"],
+        "pm2_5_24h_avg": None if air["pm2_5"] is None else round(air["pm2_5"], 1),
+        "pm10_24h_avg": None if air["pm10"] is None else round(air["pm10"], 1),
+        "source": source,
     }
 
 

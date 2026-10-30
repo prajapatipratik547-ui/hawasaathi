@@ -9,8 +9,7 @@ from agent.speech import transcribe
 from bot import alerts
 from bot.telegram import Telegram
 from bot.texts import BOT_LINK, WELCOME, t, category_name, share_url
-from air.openmeteo import get_air_quality as om_get_air_quality
-from air.naqi import india_aqi
+from air.current import current_air
 from air.geocode import geocode_area, reverse_geocode
 from db import store
 from web.stats_page import render_stats_page, render_unavailable_page
@@ -294,24 +293,26 @@ async def save_location_and_reply(uid: int, chat_id: int, user: dict, lat: float
 
 
 def aqi_text(lang: str, lat: float, lng: float, area_name: str) -> str:
-    # fetch AQI from Open-Meteo and convert to India AQI
-    aqi_data = om_get_air_quality(lat, lng)
-    if not aqi_data:
+    # India AQI from the nearest CPCB station, or the Open-Meteo estimate
+    air = current_air(lat, lng)
+    if not air:
         return t(lang, "no_data")
 
-    aqi_val, category = india_aqi(aqi_data.get("pm2_5_24h_avg"), aqi_data.get("pm10_24h_avg"))
-    if aqi_val is None:
-        return t(lang, "not_enough_data")
-
-    return t(
+    reply = t(
         lang,
         "aqi_reply",
         area=area_name,
-        aqi=aqi_val,
-        category=category_name(lang, category),
-        pm25=aqi_data.get("pm2_5"),
-        pm10=aqi_data.get("pm10"),
+        aqi=air["india_aqi"],
+        category=category_name(lang, air["category"]),
+        pm25=micrograms(air["pm2_5"]),
+        pm10=micrograms(air["pm10"]),
     )
+    return reply + "\n" + alerts.source_line(lang, air["station"])
+
+
+def micrograms(value) -> str:
+    # some stations measure only PM2.5 or only PM10
+    return "–" if value is None else str(round(value))
 
 
 async def ask_question(chat_id: int, lang: str, index: int):

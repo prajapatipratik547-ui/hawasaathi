@@ -4,8 +4,8 @@ from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from air.advice import EMOJI, best_time_outside, build_advice, level
-from air.naqi import india_aqi
-from air.openmeteo import get_air_quality, get_forecast
+from air.current import current_air
+from air.openmeteo import get_forecast
 from bot.telegram import Telegram
 from bot.texts import t, category_name
 from db import store
@@ -47,23 +47,21 @@ async def check_user(telegram: Telegram, user: dict, now: datetime, force: bool)
     """Send this user a morning or spike alert if one is due. Returns "morning", "spike" or None."""
     # the air-data and database calls are plain (blocking) requests: run them in threads so
     # several users can be checked at once
-    aqi_data = await asyncio.to_thread(get_air_quality, user["lat"], user["lng"])
-    if not aqi_data:
+    air = await asyncio.to_thread(current_air, user["lat"], user["lng"])
+    if not air:
         return None
-    aqi, category = india_aqi(aqi_data.get("pm2_5_24h_avg"), aqi_data.get("pm10_24h_avg"))
-    if aqi is None:
-        return None
+    aqi, category, station = air["india_aqi"], air["category"], air["station"]
 
     last_morning = await asyncio.to_thread(store.last_alert, user["telegram_id"], "morning")
     if force or morning_due(user, last_morning, now):
         forecast = await asyncio.to_thread(get_forecast, user["lat"], user["lng"])
         best = best_time_outside(forecast)
-        await send_alert(telegram, user, "morning", aqi, category, morning_text(user, aqi, category, best))
+        await send_alert(telegram, user, "morning", aqi, category, morning_text(user, aqi, category, best, station))
         return "morning"
 
     last = await asyncio.to_thread(store.last_alert, user["telegram_id"])
     if spike_due(category, last, now):
-        await send_alert(telegram, user, "spike", aqi, category, spike_text(user, aqi, category))
+        await send_alert(telegram, user, "spike", aqi, category, spike_text(user, aqi, category, station))
         return "spike"
 
     return None
@@ -116,19 +114,31 @@ def headline_args(user: dict, aqi: int, category: str) -> dict:
     return {"area": area, "emoji": EMOJI[category], "category": category_name(lang, category), "aqi": aqi}
 
 
-def morning_text(user: dict, aqi: int, category: str, best) -> str:
+def source_line(lang: str, station) -> str:
+    """Where the AQI came from: the CPCB station (from air.current) or the satellite estimate."""
+    if station:
+        return t(lang, "source_station", station=station["name"], km=station["distance_km"], time=station["updated"].strftime("%H:%M"))
+    return t(lang, "source_estimate")
+
+
+def morning_text(user: dict, aqi: int, category: str, best, station=None) -> str:
     lang = user.get("language") or "en"
-    lines = [t(lang, "morning_alert", **headline_args(user, aqi, category)), for_you_line(user, category)]
+    lines = [
+        t(lang, "morning_alert", **headline_args(user, aqi, category)),
+        source_line(lang, station),
+        for_you_line(user, category),
+    ]
     if best:
         lines.append(t(lang, "best_time", time=best))
     lines.append(t(lang, "disclaimer"))
     return "\n".join(lines)
 
 
-def spike_text(user: dict, aqi: int, category: str) -> str:
+def spike_text(user: dict, aqi: int, category: str, station=None) -> str:
     lang = user.get("language") or "en"
     return "\n".join([
         t(lang, "spike_alert", **headline_args(user, aqi, category)),
+        source_line(lang, station),
         for_you_line(user, category),
         t(lang, "disclaimer"),
     ])

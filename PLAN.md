@@ -53,7 +53,7 @@ Almost every Indian breathes polluted air, but people don't know **when** it's w
 | IDE | **AgentFoundry** (required) | Hackathon rule — do real build sessions in it |
 | Language | Python 3.11 + FastAPI | Simple, you know it |
 | Bot | Telegram Bot API (webhook) | Free, instant setup, no business verification |
-| Air data | Open-Meteo air-quality API (no key) now; CPCB via data.gov.in (own free key) next | WAQI returned Delhi for every Indian location on 27 Oct, so it was dropped. Open-Meteo works everywhere and has hourly forecasts; CPCB adds real measured station data |
+| Air data | CPCB stations via OpenAQ (free key) when one is within 10 km and fresh, else the Open-Meteo estimate (no key); forecasts from Open-Meteo | WAQI returned Delhi for every Indian location on 27 Oct, so it was dropped. data.gov.in's API was down all day on 30 Oct (502s), so CPCB data comes through OpenAQ, which answered in about 1 s |
 | AI | Groq free tier (openai/gpt-oss-120b), behind a swappable interface | Free and fast; can switch to Gemini/Claude later. Llama 3.3 70B was no longer on Groq on 27 Oct, so gpt-oss-120b replaced it (tool calling + good Hindi/Marathi) |
 | Database | Supabase (free Postgres) | Stores users + impact data; easy to export |
 | Hosting | Vercel (Python functions) | Free, you already use it |

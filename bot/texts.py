@@ -13,14 +13,14 @@ TEXTS = {
         "share_location": "📍 Share location",
         "place_not_found": "I couldn't find that place. Check the spelling and try again (e.g. Kothrud, Pune), or tap 📍 Share location below.",
         "no_data": "Sorry, I couldn't find air-quality data for that location.",
-        "not_enough_data": "Sorry, there isn't enough data to work out the AQI for that location.",
         "your_area": "Your area",
         "aqi_reply": (
             "📍 Area: {area}\n"
             "Air quality (India AQI): {aqi} – {category}\n"
-            "PM2.5: {pm25} µg/m³ · PM10: {pm10} µg/m³\n"
-            "Source: Open-Meteo (satellite/model estimate)"
+            "PM2.5: {pm25} µg/m³ · PM10: {pm10} µg/m³ (24-hour average)"
         ),
+        "source_station": "🏭 Official CPCB station: {station}, {km} km away (updated {time})",
+        "source_estimate": "🛰️ Source: satellite/model estimate (Open-Meteo)",
         "q_age_group": "A few quick questions so I can give advice that fits you.\n\n1/3 · Which age group are you in?",
         "age_group_child": "Child (under 14)",
         "age_group_adult": "Adult",
@@ -100,14 +100,14 @@ TEXTS = {
         "share_location": "📍 लोकेशन भेजें",
         "place_not_found": "वह जगह नहीं मिली। स्पेलिंग जाँचकर फिर से लिखें (जैसे: Kothrud, Pune), या नीचे 📍 लोकेशन भेजें बटन दबाएँ।",
         "no_data": "माफ़ कीजिए, इस जगह के लिए हवा की गुणवत्ता का डेटा नहीं मिला।",
-        "not_enough_data": "माफ़ कीजिए, इस जगह का AQI निकालने के लिए पर्याप्त डेटा नहीं है।",
         "your_area": "आपका इलाका",
         "aqi_reply": (
             "📍 इलाका: {area}\n"
             "हवा की गुणवत्ता (भारतीय AQI): {aqi} – {category}\n"
-            "PM2.5: {pm25} µg/m³ · PM10: {pm10} µg/m³\n"
-            "स्रोत: Open-Meteo (सैटेलाइट/मॉडल अनुमान)"
+            "PM2.5: {pm25} µg/m³ · PM10: {pm10} µg/m³ (24 घंटे का औसत)"
         ),
+        "source_station": "🏭 सरकारी CPCB स्टेशन: {station}, {km} किमी दूर ({time} बजे तक का डेटा)",
+        "source_estimate": "🛰️ स्रोत: सैटेलाइट/मॉडल अनुमान (Open-Meteo)",
         "q_age_group": "कुछ छोटे सवाल, ताकि मैं आपके लिए सही सलाह दे सकूँ।\n\n1/3 · आपका आयु वर्ग क्या है?",
         "age_group_child": "बच्चा (14 से कम)",
         "age_group_adult": "वयस्क",
@@ -187,14 +187,14 @@ TEXTS = {
         "share_location": "📍 लोकेशन पाठवा",
         "place_not_found": "ती जागा सापडली नाही. स्पेलिंग तपासून पुन्हा लिहा (उदा. Kothrud, Pune), किंवा खालील 📍 लोकेशन पाठवा बटण दाबा.",
         "no_data": "माफ करा, या ठिकाणासाठी हवेच्या गुणवत्तेचा डेटा मिळाला नाही.",
-        "not_enough_data": "माफ करा, या ठिकाणाचा AQI काढण्यासाठी पुरेसा डेटा नाही.",
         "your_area": "तुमचा भाग",
         "aqi_reply": (
             "📍 भाग: {area}\n"
             "हवेची गुणवत्ता (भारतीय AQI): {aqi} – {category}\n"
-            "PM2.5: {pm25} µg/m³ · PM10: {pm10} µg/m³\n"
-            "स्रोत: Open-Meteo (उपग्रह/मॉडेल अंदाज)"
+            "PM2.5: {pm25} µg/m³ · PM10: {pm10} µg/m³ (24 तासांची सरासरी)"
         ),
+        "source_station": "🏭 अधिकृत CPCB स्टेशन: {station}, {km} किमी दूर ({time} पर्यंतचा डेटा)",
+        "source_estimate": "🛰️ स्रोत: उपग्रह/मॉडेल अंदाज (Open-Meteo)",
         "q_age_group": "काही छोटे प्रश्न, म्हणजे मी तुम्हाला योग्य सल्ला देऊ शकेन.\n\n1/3 · तुमचा वयोगट कोणता?",
         "age_group_child": "मूल (14 पेक्षा कमी)",
         "age_group_adult": "प्रौढ",
