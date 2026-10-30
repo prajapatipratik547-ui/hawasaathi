@@ -7,7 +7,7 @@
 Every morning it sends a local air-quality update with advice made for *you* (your age, health and work), warns you when pollution spikes, and answers questions like *"Can I go for a run now?"* or *"क्या आज बच्चे को पार्क ले जाना ठीक है?"*
 
 - **Try it:** [t.me/HawaSaathiBot](https://t.me/HawaSaathiBot)
-- **Live impact numbers:** `/stats` on the deployed app (e.g. `https://<your-app>.vercel.app/stats`)
+- **Live impact numbers:** [hawasaathi.vercel.app/stats](https://hawasaathi.vercel.app/stats)
 - Built for **Code for a Billion (Code for India)** · Impact area: **Clean Air**
 
 ---
@@ -92,6 +92,7 @@ air/                CPCB stations (OpenAQ), Open-Meteo, India AQI calculation, a
 db/                 schema.sql (Supabase) and store.py (REST calls)
 web/                The /stats HTML page
 scripts/            poll.py (local testing), tick.py, set_webhook.py, setup_bot_profile.py
+tests/              e2e_test.py (end-to-end test, real services, fake Telegram)
 assets/             logo (SVG), bot profile photo
 .github/workflows/  tick.yml (cron every 30 minutes)
 ```
@@ -113,6 +114,18 @@ copy .env.example .env     # then fill in your own values
    .\.venv\Scripts\python.exe scripts\poll.py
    ```
 3. **Send alerts now** to test them: `.\.venv\Scripts\python.exe scripts\tick.py --force`
+4. **Run the end-to-end test** (about a minute): `.\.venv\Scripts\python.exe tests\e2e_test.py`
+   It runs 77 checks against the real database, air-data APIs and AI, with only Telegram faked:
+   - onboarding in all 3 languages
+   - CPCB station lookup, including what happens when OpenAQ is down
+   - AI answers in the right language with the 108 line
+   - the daily question limit
+   - morning alerts and the one-answer-per-alert feedback
+   - error messages
+   - webhook and cron secrets
+   - the `/stats` page showing no personal data
+
+   Test users have negative Telegram IDs and are deleted at the end.
 
 ## Deploy (Vercel + Telegram + GitHub Actions)
 
@@ -140,7 +153,7 @@ copy .env.example .env     # then fill in your own values
    - **[cron-job.org](https://cron-job.org) (main timer, every 15 minutes):** a free job that sends `POST https://<your-app>.vercel.app/api/tick` with the header `X-Cron-Secret: <CRON_SECRET>`.
    - **Vercel Cron (daily safety net):** set in `vercel.json` (`0 2 * * *` = 7:30 AM IST). Vercel's free plan runs it once a day, somewhere in that hour, so morning alerts still go out if the other timers fail. Vercel signs in with `Authorization: Bearer <CRON_SECRET>` automatically.
    - **GitHub Actions (backup):** `.github/workflows/tick.yml`. In GitHub → Settings → Secrets and variables → Actions, add `TICK_URL` = `https://<your-app>.vercel.app/api/tick` and `CRON_SECRET` = the same value as in Vercel. GitHub runs free scheduled workflows irregularly (we saw gaps of 4–7 hours), so it isn't the main timer.
-5. Open `https://<your-app>.vercel.app/stats`.
+5. Open `https://<your-app>.vercel.app/stats` (ours: [hawasaathi.vercel.app/stats](https://hawasaathi.vercel.app/stats)).
 
 ## Data sources
 

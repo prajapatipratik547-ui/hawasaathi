@@ -28,21 +28,21 @@ AVATAR = os.path.join(ROOT, "assets", "avatar.jpg")
 DESCRIPTION = {
     "en": (
         "🌬️ HawaSaathi tells you how clean the air is where you live, and what to do about it.\n\n"
-        "• A morning air update at 7 AM, with advice for your age and health\n"
+        "• A morning air update at 7 AM from official CPCB stations, with advice for your age and health\n"
         "• A warning when pollution spikes\n"
         "• Ask anything, by text or 🎙️ voice: \"Can I go for a run now?\" or \"How is the air in Delhi?\"\n\n"
         "English · हिंदी · मराठी · Free · Not medical advice.\n\nTap Start to begin."
     ),
     "hi": (
         "🌬️ हवासाथी बताता है कि आपके इलाके की हवा कितनी साफ़ है, और आपको क्या करना चाहिए।\n\n"
-        "• हर सुबह 7 बजे हवा का अपडेट, आपकी उम्र और सेहत के हिसाब से सलाह\n"
+        "• हर सुबह 7 बजे सरकारी CPCB स्टेशनों से हवा का अपडेट, आपकी उम्र और सेहत के हिसाब से सलाह\n"
         "• प्रदूषण बढ़ने पर चेतावनी\n"
         "• लिखकर या 🎙️ बोलकर कुछ भी पूछें: \"क्या अभी दौड़ने जा सकता हूँ?\" या \"दिल्ली में हवा कैसी है?\"\n\n"
         "English · हिंदी · मराठी · मुफ़्त · यह डॉक्टरी सलाह नहीं है।\n\nशुरू करने के लिए Start दबाएँ।"
     ),
     "mr": (
         "🌬️ हवासाथी सांगतो की तुमच्या भागातील हवा किती स्वच्छ आहे, आणि तुम्ही काय करावे.\n\n"
-        "• दररोज सकाळी 7 वाजता हवेचा अपडेट, तुमच्या वयानुसार आणि आरोग्यानुसार सल्ला\n"
+        "• दररोज सकाळी 7 वाजता अधिकृत CPCB स्टेशनमधून हवेचा अपडेट, तुमच्या वयानुसार आणि आरोग्यानुसार सल्ला\n"
         "• प्रदूषण वाढल्यावर इशारा\n"
         "• लिहून किंवा 🎙️ बोलून काहीही विचारा: \"आत्ता धावायला जाऊ का?\" किंवा \"दिल्लीत हवा कशी आहे?\"\n\n"
         "English · हिंदी · मराठी · मोफत · हा वैद्यकीय सल्ला नाही.\n\nसुरू करण्यासाठी Start दाबा."
