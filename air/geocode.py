@@ -60,7 +60,12 @@ def _search_understood(place: dict, text: str) -> Optional[Tuple[float, float, s
     if place["city"] and place["city"].lower() not in place["place"].lower():
         name_parts.append(place["city"])
 
-    found = _nominatim_search(query, country.lower()) or _photon_search(query, country)
+    found = _nominatim_search(query, country.lower())
+    if not found:
+        # typo-tolerant search: it may land somewhere a little different, so use that spot's real name
+        found = _photon_search(query, country)
+        if found:
+            name_parts = [found["name"]]
     if not found:
         # the user's own words, in that country only ("PCMC" -> Pimpri-Chinchwad)
         found = _nominatim_search(text, country.lower())

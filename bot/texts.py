@@ -72,6 +72,10 @@ TEXTS = {
         "question_limit": "You've asked {limit} questions today, which is the daily limit. Please ask again tomorrow! Your morning air update will still come as usual.",
         "fallback_answer": "I can't give a full answer right now, but here's the air in {area}: {emoji} {category} (India AQI {aqi}).",
         "agent_unavailable": "Sorry, I can't answer right now. Please try again in a few minutes.",
+        # voice messages
+        "voice_heard": "🎙️ I heard: “{text}”",
+        "voice_failed": "Sorry, I couldn't understand that voice message. Please try again, or type it.",
+        "voice_too_long": "Please keep voice messages under {seconds} seconds.",
         # /delete
         "delete_confirm": "This permanently deletes everything HawaSaathi stores about you: your location, profile, alerts, answers and questions. Are you sure?",
         "delete_yes": "🗑️ Yes, delete my data",
@@ -155,6 +159,10 @@ TEXTS = {
         "question_limit": "आज आप {limit} सवाल पूछ चुके हैं, जो एक दिन की सीमा है। कृपया कल फिर पूछें! सुबह का हवा अपडेट हमेशा की तरह आएगा।",
         "fallback_answer": "अभी मैं पूरा जवाब नहीं दे पा रहा, लेकिन {area} की हवा अभी: {emoji} {category} (भारतीय AQI {aqi})।",
         "agent_unavailable": "माफ़ कीजिए, अभी मैं जवाब नहीं दे पा रहा। कृपया कुछ मिनट बाद फिर पूछें।",
+        # voice messages
+        "voice_heard": "🎙️ मैंने सुना: “{text}”",
+        "voice_failed": "माफ़ कीजिए, यह वॉइस मैसेज समझ नहीं आया। कृपया फिर से बोलें, या लिखकर भेजें।",
+        "voice_too_long": "कृपया वॉइस मैसेज {seconds} सेकंड से छोटा रखें।",
         # /delete
         "delete_confirm": "इससे HawaSaathi में सेव आपकी सारी जानकारी हमेशा के लिए मिट जाएगी: लोकेशन, प्रोफ़ाइल, अलर्ट, जवाब और सवाल। क्या आप पक्का ऐसा करना चाहते हैं?",
         "delete_yes": "🗑️ हाँ, मेरा डेटा मिटाएँ",
@@ -238,6 +246,10 @@ TEXTS = {
         "question_limit": "आज तुम्ही {limit} प्रश्न विचारले आहेत, ही एका दिवसाची मर्यादा आहे. कृपया उद्या पुन्हा विचारा! सकाळचा हवेचा अपडेट नेहमीप्रमाणे येईल.",
         "fallback_answer": "आत्ता मी सविस्तर उत्तर देऊ शकत नाही, पण {area} मधील हवा आत्ता: {emoji} {category} (भारतीय AQI {aqi}).",
         "agent_unavailable": "माफ करा, आत्ता मी उत्तर देऊ शकत नाही. कृपया काही मिनिटांनी पुन्हा विचारा.",
+        # voice messages
+        "voice_heard": "🎙️ मी ऐकले: “{text}”",
+        "voice_failed": "माफ करा, हा व्हॉइस मेसेज समजला नाही. कृपया पुन्हा बोला, किंवा लिहून पाठवा.",
+        "voice_too_long": "कृपया व्हॉइस मेसेज {seconds} सेकंदांपेक्षा लहान ठेवा.",
         # /delete
         "delete_confirm": "यामुळे HawaSaathi मध्ये जतन केलेली तुमची सर्व माहिती कायमची हटवली जाईल: लोकेशन, प्रोफाइल, अलर्ट, उत्तरे आणि प्रश्न. तुम्हाला खात्री आहे का?",
         "delete_yes": "🗑️ हो, माझा डेटा हटवा",

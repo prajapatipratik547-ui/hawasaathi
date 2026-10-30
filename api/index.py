@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Header, Request, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from dotenv import load_dotenv
+import asyncio
 import hmac
 import os
 from agent.agent import answer
+from agent.speech import transcribe
 from bot import alerts
 from bot.telegram import Telegram
 from bot.texts import BOT_LINK, WELCOME, t, category_name, share_url
@@ -38,6 +40,7 @@ QUESTIONS = [
 ]
 
 DAILY_QUESTION_LIMIT = 20
+MAX_VOICE_SECONDS = 60
 
 
 @app.post("/api/telegram")
@@ -151,7 +154,17 @@ async def route_update(update: dict):
     user = store.get_user(uid) or {}
     lang = user.get("language") or "en"
 
-    # /start and /settings both (re)start onboarding with the language buttons
+    # a voice message is turned into text, then handled like a typed message:
+    # an area while onboarding, a question once set up
+    voice = msg.get("voice") or msg.get("audio")
+    if voice:
+        if user.get("state") not in ("awaiting_location", "ready"):
+            await telegram.send_message(chat_id, t(lang, "fallback"))
+            return
+        text = await voice_to_text(chat_id, lang, voice)
+        if not text:
+            return
+
     if command == "/delete":
         # ask first: this can't be undone
         await telegram.send_message(
@@ -168,6 +181,7 @@ async def route_update(update: dict):
         await send_invite(chat_id, lang)
         return
 
+    # /start and /settings both (re)start onboarding with the language buttons
     if command in ("/start", "/settings"):
         store.upsert_user(uid, chat_id=chat_id, state="awaiting_language")
         await telegram.send_message(
@@ -204,6 +218,33 @@ async def route_update(update: dict):
     # fallback reply
     if text:
         await telegram.send_message(chat_id, t(lang, "fallback"))
+
+
+async def voice_to_text(chat_id: int, lang: str, voice: dict) -> str:
+    """Transcribe a voice message and show the user what was heard. Returns "" (after telling the user) on failure."""
+    if (voice.get("duration") or 0) > MAX_VOICE_SECONDS:
+        await telegram.send_message(chat_id, t(lang, "voice_too_long", seconds=MAX_VOICE_SECONDS))
+        return ""
+    try:
+        await telegram.send_chat_action(chat_id, "typing")
+    except Exception:
+        pass  # only cosmetic
+
+    try:
+        audio = await telegram.download_file(voice["file_id"])
+        # voice notes have no file name (Telegram stores them as ".oga", which Whisper doesn't accept,
+        # but it's the same Ogg audio); audio files keep their own name, e.g. "recording.m4a"
+        filename = voice.get("file_name") or "voice.ogg"
+        text = await asyncio.to_thread(transcribe, audio, lang, filename)
+    except Exception as e:
+        print(f"voice failed: {e}")
+        text = ""
+    if not text:
+        await telegram.send_message(chat_id, t(lang, "voice_failed"))
+        return ""
+
+    await telegram.send_message(chat_id, t(lang, "voice_heard", text=text[:300]))
+    return text
 
 
 def invite_button(lang: str) -> list:

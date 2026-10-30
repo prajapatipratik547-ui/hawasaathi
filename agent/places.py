@@ -12,6 +12,7 @@ PLACE_MODEL = "openai/gpt-oss-20b"
 
 PROMPT = """You turn what a user typed into a place name for a map search. The user is most likely in India, but may name any place in the world.
 - Fix spelling ("Lohegoan" -> "Lohegaon", "Banglore" -> "Bengaluru", "Chenai" -> "Chennai").
+- The text may come from speech recognition, so words can be misheard: use the real place it sounds like ("कोत्रूट पुने" -> "Kothrud, Pune").
 - Write Hindi/Marathi script and Hinglish as the usual English name ("लोहगाव, पुणे" -> Lohegaon, Pune).
 - Drop filler words ("I live in", "near", "mera ghar ... me hai").
 - Keep the most specific place the user means. Never replace an area or landmark with just its city.

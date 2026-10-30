@@ -96,6 +96,20 @@ class Telegram:
             payload["text"] = text
         return await self._post("answerCallbackQuery", payload)
 
+    async def download_file(self, file_id: str) -> bytes:
+        """The bytes of a file a user sent (e.g. a voice message). Bots can download files up to 20 MB."""
+        path = (await self._post("getFile", {"file_id": file_id}))["result"]["file_path"]
+        # files live at https://api.telegram.org/file/bot<token>/<path>; the URL holds the token, so keep it out of errors
+        url = self.base.replace("/bot", "/file/bot", 1) + "/" + path
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(url, timeout=30.0)
+        except httpx.HTTPError as e:
+            raise RuntimeError(f"Telegram file download failed: {type(e).__name__}") from None
+        if r.status_code >= 400:
+            raise RuntimeError(f"Telegram file download failed: HTTP {r.status_code}")
+        return r.content
+
     async def send_chat_action(self, chat_id: int, action: str = "typing"):
         # shows "typing..." for a few seconds, or until we send a message
         return await self._post("sendChatAction", {"chat_id": chat_id, "action": action})

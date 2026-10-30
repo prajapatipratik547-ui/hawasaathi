@@ -29,6 +29,7 @@ Air-quality data exists, but it sits in apps and dashboards people don't check, 
 2. **Morning alert** (7 AM IST): today's India AQI near you, advice for *your* profile, and the cleanest 2-hour window to go outside.
 3. **Spike alert**: a short warning when the air turns *Very Poor* or gets worse than at your last alert (at most one every 3 hours, none at night).
 4. **Ask anything**: free-text questions are answered by an AI agent that looks up live data and your profile. It never guesses numbers.
+   **🎙️ Or just speak:** send a voice message in Hindi, Marathi or English, as a question or (while onboarding) to say your area. Whisper turns it into text, the bot shows *"🎙️ I heard: …"*, and answers as if you had typed it. This helps elderly people and anyone who finds typing hard.
 5. **Impact button** under every alert: *"Did this change your plan? ✅ Yes / ❌ No"*.
 6. **Public `/stats` page**: users, alerts sent and the % who said an alert changed their plan. Counts only, no personal data.
 
@@ -67,7 +68,8 @@ Air-quality data exists, but it sits in apps and dashboards people don't check, 
 | Bot | Telegram Bot API (webhook) |
 | Air data | Open-Meteo Air Quality API, converted to India's National AQI (CPCB breakpoints) |
 | Places | OpenStreetMap Nominatim |
-| AI | Groq (`openai/gpt-oss-120b`, OpenAI-compatible API), behind one `chat()` function so it can be swapped |
+| AI | Groq (`openai/gpt-oss-120b`, OpenAI-compatible API), behind one `chat()` function so it can be swapped; `gpt-oss-20b` for understanding place names |
+| Voice | Groq Whisper (`whisper-large-v3`) speech-to-text for Hindi, Marathi and English |
 | Database | Supabase (Postgres via its REST API, Row Level Security on) |
 | Hosting | Vercel (Python function) |
 | Scheduler | GitHub Actions cron |
@@ -150,7 +152,7 @@ HawaSaathi stores only what it needs to send useful alerts:
 - **Feedback:** your Yes/No answer to "Did this change your plan?".
 - **Questions:** the text of questions you ask, and when you asked them.
 
-It does **not** store names, usernames or phone numbers. Your question text and profile are sent to Groq to generate an answer. Your location is sent to Open-Meteo, and typed place names to Groq (to clean them up) and to Nominatim/Photon. The database is locked with Row Level Security, so only the server's key can read it. The `/stats` page shows totals only. **Send `/delete` at any time** to erase everything stored about you (after a confirmation tap).
+It does **not** store names, usernames or phone numbers. Your question text and profile are sent to Groq to generate an answer. Voice messages are sent to Groq (Whisper) to be turned into text; the audio itself is never stored, only the text of the question. Your location is sent to Open-Meteo, and typed place names to Groq (to clean them up) and to Nominatim/Photon. The database is locked with Row Level Security, so only the server's key can read it. The `/stats` page shows totals only. **Send `/delete` at any time** to erase everything stored about you (after a confirmation tap).
 
 ## License
 
