@@ -38,6 +38,13 @@ h2 { font-size: 15px; font-weight: 600; color: var(--muted); margin: 28px 0 10px
 .track { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
 .fill { height: 100%; background: var(--bar); border-radius: 4px; }
 .count { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.cta {
+  display: inline-flex; align-items: center; gap: 10px; margin: 0 0 24px;
+  background: var(--accent); color: var(--bg); font-weight: 700; text-decoration: none;
+  padding: 12px 20px; border-radius: 999px;
+}
+.cta:hover { filter: brightness(1.08); }
+.cta img { width: 26px; height: 26px; border-radius: 50%; }
 footer { color: var(--muted); font-size: 14px; margin-top: 28px; }
 footer a { color: var(--accent); }
 """
@@ -45,14 +52,22 @@ footer a { color: var(--accent); }
 LANGUAGE_LABELS = [("en", "English"), ("hi", "हिंदी"), ("mr", "मराठी")]
 
 
-def _page(body: str) -> str:
+DESCRIPTION = "Live impact numbers for HawaSaathi, a free Telegram assistant for daily air-quality alerts in English, Hindi and Marathi."
+
+
+def _page(body: str, base_url: str = "") -> str:
+    # base_url makes the preview image absolute, which link previews (WhatsApp, LinkedIn) need
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HawaSaathi Impact</title>
-<meta name="description" content="Live impact numbers for HawaSaathi, a free air-quality assistant on Telegram.">
+<meta name="description" content="{DESCRIPTION}">
+<link rel="icon" href="/logo.png">
+<meta property="og:title" content="HawaSaathi impact">
+<meta property="og:description" content="{DESCRIPTION}">
+<meta property="og:image" content="{escape(base_url.rstrip('/'))}/logo.png">
 <style>{STYLE}</style>
 </head>
 <body><main>{body}</main></body>
@@ -63,7 +78,7 @@ def _card(number, label: str) -> str:
     return f'<div class="card"><div class="num">{number}</div><div class="label">{escape(label)}</div></div>'
 
 
-def render_stats_page(stats: dict) -> str:
+def render_stats_page(stats: dict, bot_link: str, base_url: str = "") -> str:
     users, alerts, feedback = stats["users"], stats["alerts"], stats["feedback"]
 
     percent = feedback["changed_plan_percent"]
@@ -88,6 +103,7 @@ def render_stats_page(stats: dict) -> str:
     body = f"""
 <h1>HawaSaathi impact</h1>
 <p class="sub">A free Telegram assistant that sends daily local air-quality alerts and advice in English, Hindi and Marathi.</p>
+<a class="cta" href="{escape(bot_link)}"><img src="/logo.png" alt="">Try HawaSaathi on Telegram →</a>
 
 <div class="hero">
   <div class="num">{hero_number}</div>
@@ -110,7 +126,7 @@ def render_stats_page(stats: dict) -> str:
   Counts only: no names, IDs, locations or questions are shown. Same numbers as <a href="/api/stats">JSON</a>.
 </footer>
 """
-    return _page(body)
+    return _page(body, base_url)
 
 
 def render_unavailable_page() -> str:

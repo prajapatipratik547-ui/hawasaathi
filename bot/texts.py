@@ -1,5 +1,9 @@
 """All bot messages, one dict per language (en, hi, mr)."""
 
+from urllib.parse import quote
+
+BOT_LINK = "https://t.me/HawaSaathiBot"
+
 # shown before the user has picked a language, so it's in all three
 WELCOME = "Welcome to HawaSaathi! Please choose a language / कृपया भाषा चुनें / कृपया भाषा निवडा"
 
@@ -68,6 +72,16 @@ TEXTS = {
         "question_limit": "You've asked {limit} questions today, which is the daily limit. Please ask again tomorrow! Your morning air update will still come as usual.",
         "fallback_answer": "I can't give a full answer right now, but here's the air in {area}: {emoji} {category} (India AQI {aqi}).",
         "agent_unavailable": "Sorry, I can't answer right now. Please try again in a few minutes.",
+        # /delete
+        "delete_confirm": "This permanently deletes everything HawaSaathi stores about you: your location, profile, alerts, answers and questions. Are you sure?",
+        "delete_yes": "🗑️ Yes, delete my data",
+        "delete_no": "Cancel",
+        "deleted": "Done. All your data has been deleted and you won't get any more alerts. Send /start any time to use HawaSaathi again.",
+        "delete_cancelled": "Cancelled. Nothing was deleted.",
+        # invite
+        "invite_text": "Know someone who should get these alerts? Parents, kids, a friend with asthma? Share HawaSaathi with them 👇",
+        "invite_button": "👨‍👩‍👧 Invite your family",
+        "share_message": "HawaSaathi is a free Telegram bot that sends a daily air-quality alert for your area, with advice for your health (English, हिंदी, मराठी). Try it:",
         "category": {
             "Good": "Good",
             "Satisfactory": "Satisfactory",
@@ -141,6 +155,16 @@ TEXTS = {
         "question_limit": "आज आप {limit} सवाल पूछ चुके हैं, जो एक दिन की सीमा है। कृपया कल फिर पूछें! सुबह का हवा अपडेट हमेशा की तरह आएगा।",
         "fallback_answer": "अभी मैं पूरा जवाब नहीं दे पा रहा, लेकिन {area} की हवा अभी: {emoji} {category} (भारतीय AQI {aqi})।",
         "agent_unavailable": "माफ़ कीजिए, अभी मैं जवाब नहीं दे पा रहा। कृपया कुछ मिनट बाद फिर पूछें।",
+        # /delete
+        "delete_confirm": "इससे HawaSaathi में सेव आपकी सारी जानकारी हमेशा के लिए मिट जाएगी: लोकेशन, प्रोफ़ाइल, अलर्ट, जवाब और सवाल। क्या आप पक्का ऐसा करना चाहते हैं?",
+        "delete_yes": "🗑️ हाँ, मेरा डेटा मिटाएँ",
+        "delete_no": "रद्द करें",
+        "deleted": "हो गया। आपका सारा डेटा मिटा दिया गया है, और अब आपको अलर्ट नहीं आएँगे। HawaSaathi फिर से इस्तेमाल करने के लिए कभी भी /start भेजें।",
+        "delete_cancelled": "रद्द किया गया। कुछ भी नहीं मिटाया गया।",
+        # invite
+        "invite_text": "किसे ये अलर्ट मिलने चाहिए? माता-पिता, बच्चे, अस्थमा वाले दोस्त? उनके साथ HawaSaathi शेयर करें 👇",
+        "invite_button": "👨‍👩‍👧 परिवार को बुलाएँ",
+        "share_message": "HawaSaathi एक मुफ़्त Telegram बॉट है जो आपके इलाके की हवा का रोज़ अलर्ट और आपकी सेहत के हिसाब से सलाह देता है (English, हिंदी, मराठी)। आज़माएँ:",
         "category": {
             "Good": "अच्छा",
             "Satisfactory": "संतोषजनक",
@@ -214,6 +238,16 @@ TEXTS = {
         "question_limit": "आज तुम्ही {limit} प्रश्न विचारले आहेत, ही एका दिवसाची मर्यादा आहे. कृपया उद्या पुन्हा विचारा! सकाळचा हवेचा अपडेट नेहमीप्रमाणे येईल.",
         "fallback_answer": "आत्ता मी सविस्तर उत्तर देऊ शकत नाही, पण {area} मधील हवा आत्ता: {emoji} {category} (भारतीय AQI {aqi}).",
         "agent_unavailable": "माफ करा, आत्ता मी उत्तर देऊ शकत नाही. कृपया काही मिनिटांनी पुन्हा विचारा.",
+        # /delete
+        "delete_confirm": "यामुळे HawaSaathi मध्ये जतन केलेली तुमची सर्व माहिती कायमची हटवली जाईल: लोकेशन, प्रोफाइल, अलर्ट, उत्तरे आणि प्रश्न. तुम्हाला खात्री आहे का?",
+        "delete_yes": "🗑️ हो, माझा डेटा हटवा",
+        "delete_no": "रद्द करा",
+        "deleted": "झाले. तुमचा सर्व डेटा हटवला आहे, आणि आता तुम्हाला अलर्ट येणार नाहीत. HawaSaathi पुन्हा वापरण्यासाठी कधीही /start पाठवा.",
+        "delete_cancelled": "रद्द केले. काहीही हटवले नाही.",
+        # invite
+        "invite_text": "हे अलर्ट कोणाला मिळायला हवेत? आई-वडील, मुले, दमा असलेले मित्र? त्यांच्यासोबत HawaSaathi शेअर करा 👇",
+        "invite_button": "👨‍👩‍👧 कुटुंबाला बोलवा",
+        "share_message": "HawaSaathi हा एक मोफत Telegram बॉट आहे जो तुमच्या भागातील हवेचा रोजचा अलर्ट आणि तुमच्या आरोग्यानुसार सल्ला देतो (English, हिंदी, मराठी). वापरून पाहा:",
         "category": {
             "Good": "चांगली",
             "Satisfactory": "समाधानकारक",
@@ -235,3 +269,8 @@ def t(lang: str, key: str, **kwargs) -> str:
 def category_name(lang: str, category: str) -> str:
     texts = TEXTS.get(lang) or TEXTS["en"]
     return texts["category"].get(category, category)
+
+
+def share_url(lang: str) -> str:
+    """Telegram's share screen, pre-filled with an invite to the bot in the user's language."""
+    return f"https://t.me/share/url?url={quote(BOT_LINK)}&text={quote(t(lang, 'share_message'))}"

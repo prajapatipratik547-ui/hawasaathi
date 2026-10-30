@@ -1,10 +1,12 @@
 """Set the bot's public profile: photo, descriptions and command menu, in English, Hindi and Marathi.
 
-    python scripts/setup_bot_profile.py
+    python scripts/setup_bot_profile.py               # photo + texts + commands
+    python scripts/setup_bot_profile.py --texts-only  # only texts and commands
 
 Safe to run again. Telegram shows the hi/mr texts to users whose Telegram app is in that language,
 and the English ones to everyone else. Needs TELEGRAM_BOT_TOKEN in .env. The token is never printed.
 """
+import argparse
 import json
 import os
 import sys
@@ -56,19 +58,38 @@ SHORT_DESCRIPTION = {
 
 # the menu button next to the message box
 COMMANDS = {
-    "en": [("start", "Start or restart"), ("settings", "Change language, location or profile")],
-    "hi": [("start", "शुरू करें"), ("settings", "भाषा, लोकेशन या प्रोफ़ाइल बदलें")],
-    "mr": [("start", "सुरू करा"), ("settings", "भाषा, लोकेशन किंवा प्रोफाइल बदला")],
+    "en": [
+        ("start", "Start or restart"),
+        ("settings", "Change language, location or profile"),
+        ("invite", "Invite family and friends"),
+        ("delete", "Delete all my data"),
+    ],
+    "hi": [
+        ("start", "शुरू करें"),
+        ("settings", "भाषा, लोकेशन या प्रोफ़ाइल बदलें"),
+        ("invite", "परिवार और दोस्तों को बुलाएँ"),
+        ("delete", "मेरा सारा डेटा मिटाएँ"),
+    ],
+    "mr": [
+        ("start", "सुरू करा"),
+        ("settings", "भाषा, लोकेशन किंवा प्रोफाइल बदला"),
+        ("invite", "कुटुंब आणि मित्रांना बोलवा"),
+        ("delete", "माझा सर्व डेटा हटवा"),
+    ],
 }
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Set the bot's photo, descriptions and command menu.")
+    parser.add_argument("--texts-only", action="store_true", help="skip the photo (each upload adds one to the bot's photo history)")
+    args = parser.parse_args()
     telegram = Telegram()
 
-    with open(AVATAR, "rb") as f:
-        photo = json.dumps({"type": "static", "photo": "attach://avatar"})
-        telegram._post_sync("setMyProfilePhoto", {"photo": photo}, files={"avatar": ("avatar.jpg", f, "image/jpeg")})
-    print("profile photo set")
+    if not args.texts_only:
+        with open(AVATAR, "rb") as f:
+            photo = json.dumps({"type": "static", "photo": "attach://avatar"})
+            telegram._post_sync("setMyProfilePhoto", {"photo": photo}, files={"avatar": ("avatar.jpg", f, "image/jpeg")})
+        print("profile photo set")
 
     for lang in ("en", "hi", "mr"):
         # English is the default for every other app language too

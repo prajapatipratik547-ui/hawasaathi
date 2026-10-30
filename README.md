@@ -32,7 +32,7 @@ Air-quality data exists, but it sits in apps and dashboards people don't check, 
 5. **Impact button** under every alert: *"Did this change your plan? ✅ Yes / ❌ No"*.
 6. **Public `/stats` page**: users, alerts sent and the % who said an alert changed their plan. Counts only, no personal data.
 
-`/settings` lets you change your language, location and answers at any time.
+`/settings` changes your language, location and answers at any time. `/invite` (also a button after onboarding) shares the bot with family and friends in your language. `/delete` erases all your data.
 
 **Safety:** advice is general, not medical. Every alert and air-quality answer ends with *"Not medical advice. If you have trouble breathing, call 108."*. Questions about symptoms are pointed to a doctor, and emergencies to 108.
 
@@ -150,7 +150,7 @@ HawaSaathi stores only what it needs to send useful alerts:
 - **Feedback:** your Yes/No answer to "Did this change your plan?".
 - **Questions:** the text of questions you ask, and when you asked them.
 
-It does **not** store names, usernames or phone numbers. Your question text and profile are sent to Groq to generate an answer. Your location is sent to Open-Meteo, and typed place names to Groq (to clean them up) and to Nominatim/Photon. The database is locked with Row Level Security, so only the server's key can read it. The `/stats` page shows totals only. To have your data deleted, open an issue or contact the maintainer.
+It does **not** store names, usernames or phone numbers. Your question text and profile are sent to Groq to generate an answer. Your location is sent to Open-Meteo, and typed place names to Groq (to clean them up) and to Nominatim/Photon. The database is locked with Row Level Security, so only the server's key can read it. The `/stats` page shows totals only. **Send `/delete` at any time** to erase everything stored about you (after a confirmation tap).
 
 ## License
 

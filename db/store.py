@@ -186,3 +186,8 @@ def get_stats() -> dict:
 
     _stats_cache.update(at=time.monotonic(), stats=stats)
     return stats
+
+
+def delete_user(telegram_id: int) -> None:
+    """/delete: removes the user and, through the database's cascade, their alerts, feedback and questions."""
+    _request("DELETE", "users", params={"telegram_id": f"eq.{telegram_id}"}, prefer="return=minimal")

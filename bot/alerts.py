@@ -1,4 +1,5 @@
-"""Morning and spike alerts. tick() is run every 30 minutes by the cron (POST /api/tick)."""
+"""Morning and spike alerts. tick() is run every 15 minutes by the timers (POST/GET /api/tick)."""
+import asyncio
 from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
@@ -14,44 +15,54 @@ IST = ZoneInfo("Asia/Kolkata")
 MORNING_WINDOW = timedelta(hours=3)  # send the morning alert up to 3 hours after alert_time
 SPIKE_GAP = timedelta(hours=3)  # at most one spike alert per 3 hours
 QUIET_HOURS = (22, 6)  # no spike alerts from 10 PM to 6 AM IST
+PARALLEL_USERS = 12  # users checked at the same time: ~10 s for 50 users instead of ~100 s
 
 
 async def tick(telegram: Telegram, force: bool = False) -> dict:
     """Send due alerts to every ready user. force=True sends a morning alert to everyone right now."""
     now = datetime.now(IST)
-    summary = {"users_checked": 0, "alerts_sent": 0, "morning": 0, "spike": 0, "errors": 0}
+    users = store.list_ready_users()
+    limit = asyncio.Semaphore(PARALLEL_USERS)
 
-    for user in store.list_ready_users():
-        summary["users_checked"] += 1
-        try:
-            sent = await check_user(telegram, user, now, force)
-        except Exception as e:
-            # one user's error must not stop the others
-            summary["errors"] += 1
-            print(f"tick: user failed: {e}")
-            continue
-        if sent:
-            summary["alerts_sent"] += 1
-            summary[sent] += 1
+    async def check(user: dict):
+        async with limit:
+            try:
+                return await check_user(telegram, user, now, force)
+            except Exception as e:
+                # one user's error must not stop the others
+                print(f"tick: user failed: {e}")
+                return "error"
 
-    return summary
+    results = await asyncio.gather(*(check(user) for user in users))
+    return {
+        "users_checked": len(users),
+        "alerts_sent": results.count("morning") + results.count("spike"),
+        "morning": results.count("morning"),
+        "spike": results.count("spike"),
+        "errors": results.count("error"),
+    }
 
 
 async def check_user(telegram: Telegram, user: dict, now: datetime, force: bool):
     """Send this user a morning or spike alert if one is due. Returns "morning", "spike" or None."""
-    aqi_data = get_air_quality(user["lat"], user["lng"])
+    # the air-data and database calls are plain (blocking) requests: run them in threads so
+    # several users can be checked at once
+    aqi_data = await asyncio.to_thread(get_air_quality, user["lat"], user["lng"])
     if not aqi_data:
         return None
     aqi, category = india_aqi(aqi_data.get("pm2_5_24h_avg"), aqi_data.get("pm10_24h_avg"))
     if aqi is None:
         return None
 
-    if force or morning_due(user, store.last_alert(user["telegram_id"], "morning"), now):
-        best = best_time_outside(get_forecast(user["lat"], user["lng"]))
+    last_morning = await asyncio.to_thread(store.last_alert, user["telegram_id"], "morning")
+    if force or morning_due(user, last_morning, now):
+        forecast = await asyncio.to_thread(get_forecast, user["lat"], user["lng"])
+        best = best_time_outside(forecast)
         await send_alert(telegram, user, "morning", aqi, category, morning_text(user, aqi, category, best))
         return "morning"
 
-    if spike_due(category, store.last_alert(user["telegram_id"]), now):
+    last = await asyncio.to_thread(store.last_alert, user["telegram_id"])
+    if spike_due(category, last, now):
         await send_alert(telegram, user, "spike", aqi, category, spike_text(user, aqi, category))
         return "spike"
 
@@ -126,7 +137,7 @@ def spike_text(user: dict, aqi: int, category: str) -> str:
 async def send_alert(telegram: Telegram, user: dict, type: str, aqi: int, category: str, text: str):
     """Log the alert, then send it with the impact buttons (which need the alert id)."""
     lang = user.get("language") or "en"
-    alert_id = store.log_alert(user["telegram_id"], type, aqi, category)
+    alert_id = await asyncio.to_thread(store.log_alert, user["telegram_id"], type, aqi, category)
     buttons = [
         [{"text": t(lang, "fb_yes"), "callback_data": f"fb:{alert_id}:1"}],
         [{"text": t(lang, "fb_no"), "callback_data": f"fb:{alert_id}:0"}],
@@ -135,5 +146,5 @@ async def send_alert(telegram: Telegram, user: dict, type: str, aqi: int, catego
         await telegram.send_message(user["chat_id"], text, inline_keyboard=buttons)
     except Exception:
         # not sent, so don't count it; the next tick will try again
-        store.delete_alert(alert_id)
+        await asyncio.to_thread(store.delete_alert, alert_id)
         raise

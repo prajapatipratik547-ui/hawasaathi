@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Header, Request, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from dotenv import load_dotenv
 import hmac
 import os
 from agent.agent import answer
 from bot import alerts
 from bot.telegram import Telegram
-from bot.texts import WELCOME, t, category_name
+from bot.texts import BOT_LINK, WELCOME, t, category_name, share_url
 from air.openmeteo import get_air_quality as om_get_air_quality
 from air.naqi import india_aqi
 from air.geocode import geocode_area, reverse_geocode
@@ -76,15 +76,25 @@ async def home():
     return RedirectResponse("/stats")
 
 
+LOGO = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "logo-256.png")
+
+
+@app.get("/logo.png")
+async def logo():
+    # the bot logo, for the stats page icon and link previews
+    return FileResponse(LOGO, media_type="image/png", headers={"Cache-Control": "public, max-age=86400"})
+
+
 @app.get("/stats", response_class=HTMLResponse)
-async def stats_page():
+async def stats_page(request: Request):
     # public page for judges: counts only, no personal data
     try:
         stats = store.get_stats()
     except Exception as e:
         print(f"stats failed: {e}")
         return HTMLResponse(render_unavailable_page(), status_code=503)
-    return HTMLResponse(render_stats_page(stats), headers=STATS_CACHE_HEADERS)
+    page = render_stats_page(stats, BOT_LINK, str(request.base_url))
+    return HTMLResponse(page, headers=STATS_CACHE_HEADERS)
 
 
 @app.get("/api/stats")
@@ -142,6 +152,22 @@ async def route_update(update: dict):
     lang = user.get("language") or "en"
 
     # /start and /settings both (re)start onboarding with the language buttons
+    if command == "/delete":
+        # ask first: this can't be undone
+        await telegram.send_message(
+            chat_id,
+            t(lang, "delete_confirm"),
+            inline_keyboard=[
+                [{"text": t(lang, "delete_yes"), "callback_data": "del:yes"}],
+                [{"text": t(lang, "delete_no"), "callback_data": "del:no"}],
+            ],
+        )
+        return
+
+    if command == "/invite":
+        await send_invite(chat_id, lang)
+        return
+
     if command in ("/start", "/settings"):
         store.upsert_user(uid, chat_id=chat_id, state="awaiting_language")
         await telegram.send_message(
@@ -178,6 +204,15 @@ async def route_update(update: dict):
     # fallback reply
     if text:
         await telegram.send_message(chat_id, t(lang, "fallback"))
+
+
+def invite_button(lang: str) -> list:
+    # opens Telegram's share screen with a ready-made invite to the bot
+    return [[{"text": t(lang, "invite_button"), "url": share_url(lang)}]]
+
+
+async def send_invite(chat_id: int, lang: str):
+    await telegram.send_message(chat_id, t(lang, "invite_text"), inline_keyboard=invite_button(lang))
 
 
 async def handle_question(uid: int, chat_id: int, user: dict, question: str):
@@ -276,6 +311,13 @@ async def handle_button(cq: dict):
     await answer_button(cq)
     user = store.get_user(uid) or {}
 
+    if data in ("del:yes", "del:no"):
+        lang = user.get("language") or "en"
+        if data == "del:yes":
+            store.delete_user(uid)
+        await tidy_message(chat_id, message_id, t(lang, "deleted" if data == "del:yes" else "delete_cancelled"))
+        return
+
     if data in LANGUAGES:
         # only a tap on the welcome we're waiting on counts. An old or re-sent tap (e.g. replayed
         # by Telegram after poll.py restarts) used to skip straight to the English location question.
@@ -313,7 +355,8 @@ async def handle_button(cq: dict):
 
         if is_last:
             # alert_time defaults to 07:00 in the database
-            await telegram.send_message(chat_id, t(lang, "all_set"))
+            # the invite button right when they're happiest: just set up
+            await telegram.send_message(chat_id, t(lang, "all_set"), inline_keyboard=invite_button(lang))
         else:
             await ask_question(chat_id, lang, index + 1)
         return
