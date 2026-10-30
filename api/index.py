@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Header, Request, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from dotenv import load_dotenv
 import hmac
 import os
@@ -17,7 +17,9 @@ from web.stats_page import render_stats_page, render_unavailable_page
 # Nothing below needs an env var at import time: they are all read when a request comes in.
 load_dotenv()
 
-app = FastAPI()
+# Vercel sends every path straight to this app, so vercel.json needs no rewrites.
+# No auto-generated /docs pages: this is a bot backend, not a public API.
+app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 telegram = Telegram()
 
@@ -62,6 +64,12 @@ async def tick_endpoint(x_cron_secret: str = Header(None)):
     if not cron_secret or not x_cron_secret or not hmac.compare_digest(x_cron_secret, cron_secret):
         raise HTTPException(status_code=403, detail="Invalid cron secret")
     return JSONResponse(await alerts.tick(telegram))
+
+
+@app.get("/")
+async def home():
+    # people (and judges) opening the bare domain land on the impact page
+    return RedirectResponse("/stats")
 
 
 @app.get("/stats", response_class=HTMLResponse)

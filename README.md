@@ -110,7 +110,7 @@ copy .env.example .env     # then fill in your own values
 
 ## Deploy (Vercel + Telegram + GitHub Actions)
 
-1. **Import the repo in Vercel** (or run `vercel` from the project folder). `vercel.json` routes `/api/telegram`, `/api/tick`, `/api/stats` and `/stats` to `api/index.py`.
+1. **Import the repo in Vercel** (or run `vercel` from the project folder) with Framework Preset **Other**. Vercel detects the FastAPI app in `api/index.py` and sends every path to it (`/stats`, `/api/stats`, `/api/telegram`, `/api/tick`). `vercel.json` only sets the 60-second time limit.
 2. **Add these environment variables** in Vercel → Project → Settings → Environment Variables:
 
    | Name | What |
