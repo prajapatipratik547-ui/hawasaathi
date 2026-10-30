@@ -45,10 +45,10 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_air_for_place",
-            "description": "Current India AQI for any place in India by name, e.g. 'Mumbai' or 'Kothrud, Pune'.",
+            "description": "Current India AQI for any place by name: Indian areas and cities, or anywhere in the world.",
             "parameters": {
                 "type": "object",
-                "properties": {"place": {"type": "string", "description": "Place name, e.g. 'Andheri, Mumbai'"}},
+                "properties": {"place": {"type": "string", "description": "Place name, e.g. 'Andheri, Mumbai' or 'London'"}},
                 "required": ["place"],
             },
         },
@@ -119,7 +119,7 @@ def get_user_profile(user: dict) -> dict:
 def get_air_for_place(user: dict, place: str = "") -> dict:
     geocoded = geocode_area(place) if place else None
     if not geocoded:
-        return {"error": f"couldn't find a place called '{place}' in India"}
+        return {"error": f"couldn't find a place called '{place}'"}
     lat, lng, name = geocoded
     return in_user_language(current_air(lat, lng, name), user)
 

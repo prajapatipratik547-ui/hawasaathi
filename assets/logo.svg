@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="640" height="640">
+  <!-- HawaSaathi logo: wind lines on a "clean air" green-to-blue gradient. Telegram crops avatars to a circle. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#20C997"/>
+      <stop offset="1" stop-color="#1864AB"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.3" cy="0.25" r="0.75">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="640" fill="url(#sky)"/>
+  <rect width="640" height="640" fill="url(#glow)"/>
+  <g transform="translate(-8 16)">
+  <g fill="none" stroke="#FFFFFF" stroke-width="40" stroke-linecap="round" stroke-linejoin="round">
+    <!-- top wind line, curling up -->
+    <path d="M150 250 H390 A62 62 0 1 0 328 188"/>
+    <!-- long middle line, curling down -->
+    <path d="M150 336 H452 A66 66 0 1 1 386 402"/>
+    <!-- short bottom line -->
+    <path d="M150 422 H300"/>
+  </g>
+  <!-- small leaf: the air is clean -->
+  <g transform="translate(-16 12)">
+  <path d="M470 196 C470 150 505 122 548 120 C548 166 520 196 470 196 Z" fill="#D3F9D8"/>
+  <path d="M478 190 L528 138" stroke="#20C997" stroke-width="7" stroke-linecap="round" fill="none"/>
+  </g>
+  </g>
+</svg>

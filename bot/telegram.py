@@ -46,10 +46,14 @@ class Telegram:
                 raise RuntimeError(f"Telegram {method} failed: {type(e).__name__}") from None
         return _check(method, r)
 
-    def _post_sync(self, method: str, payload: dict) -> dict:
+    def _post_sync(self, method: str, payload: dict, files: Optional[dict] = None) -> dict:
         for attempt in (1, 2):
             try:
-                r = httpx.post(f"{self.base}/{method}", json=payload, timeout=10.0)
+                if files:
+                    # file uploads go as multipart form data
+                    r = httpx.post(f"{self.base}/{method}", data=payload, files=files, timeout=30.0)
+                else:
+                    r = httpx.post(f"{self.base}/{method}", json=payload, timeout=10.0)
                 break
             except RETRY_ERRORS as e:
                 if attempt == 2:

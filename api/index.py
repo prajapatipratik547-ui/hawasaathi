@@ -25,6 +25,7 @@ telegram = Telegram()
 STATS_CACHE_HEADERS = {"Cache-Control": "public, max-age=60, s-maxage=300"}
 
 LANGUAGES = {"lang_en": "en", "lang_hi": "hi", "lang_mr": "mr"}
+LANGUAGE_LABELS = {"en": "English", "hi": "हिंदी", "mr": "मराठी"}
 
 # onboarding questions, asked in this order after the first AQI reply:
 # (user state while waiting for the answer, users column, answer options)
@@ -271,7 +272,8 @@ async def handle_button(cq: dict):
             return
         lang = LANGUAGES[data]
         store.upsert_user(uid, chat_id=chat_id, language=lang, state="awaiting_location")
-        await tidy_message(chat_id, message_id)
+        # show the choice instead of the buttons, like the onboarding answers ("✅ English")
+        await tidy_message(chat_id, message_id, f"{WELCOME}\n\n✅ {LANGUAGE_LABELS[lang]}")
         await telegram.send_message(
             chat_id,
             t(lang, "ask_location"),

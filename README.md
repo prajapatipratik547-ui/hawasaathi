@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo-256.png" width="128" height="128" alt="HawaSaathi logo"></p>
+
 # HawaSaathi 🌬️
 
 **A free Telegram assistant that tells you how clean the air is where you live, and what to do about it, in English, हिंदी or मराठी.**
@@ -23,6 +25,7 @@ Air-quality data exists, but it sits in apps and dashboards people don't check, 
 ## What HawaSaathi does
 
 1. **Onboarding** (`/start`): pick a language, share your location (or type your area), answer 3 quick questions: age group, health condition, and whether you work outdoors.
+   **Type any place, any way:** an area, city, landmark or PIN code, in English, हिंदी or मराठी, with typos or as a sentence. *"Lohegoan, Pune"*, *"mera ghar kothrud me hai"*, *"near Pune station"*, *"PCMC"*, *"411014"* and *"London"* all work. An AI model cleans up the text, and OpenStreetMap finds the coordinates.
 2. **Morning alert** (7 AM IST): today's India AQI near you, advice for *your* profile, and the cleanest 2-hour window to go outside.
 3. **Spike alert**: a short warning when the air turns *Very Poor* or gets worse than at your last alert (at most one every 3 hours, none at night).
 4. **Ask anything**: free-text questions are answered by an AI agent that looks up live data and your profile. It never guesses numbers.
@@ -82,7 +85,8 @@ agent/              LLM client (Groq), agent tools, agent loop + rule-based fall
 air/                Open-Meteo, India AQI calculation, advice rules, geocoding
 db/                 schema.sql (Supabase) and store.py (REST calls)
 web/                The /stats HTML page
-scripts/            poll.py (local testing), tick.py, set_webhook.py
+scripts/            poll.py (local testing), tick.py, set_webhook.py, setup_bot_profile.py
+assets/             logo (SVG), bot profile photo
 .github/workflows/  tick.yml (cron every 30 minutes)
 ```
 
@@ -136,7 +140,7 @@ copy .env.example .env     # then fill in your own values
 
 - **[Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api):** hourly PM2.5 and PM10 for any location, from the Copernicus Atmosphere Monitoring Service (CAMS) models. These are satellite/model estimates, not station readings, and the bot labels them that way. Licensed CC BY 4.0.
 - **CPCB National Air Quality Index:** India's official AQI categories and breakpoints (Good, Satisfactory, Moderate, Poor, Very Poor, Severe). HawaSaathi computes the India AQI from 24-hour average PM2.5 and PM10.
-- **[OpenStreetMap Nominatim](https://nominatim.org/):** turns typed place names into coordinates and back into short area names. Map data © OpenStreetMap contributors, ODbL.
+- **[OpenStreetMap Nominatim](https://nominatim.org/)** and **[Photon](https://photon.komoot.io/)** (typo-tolerant search): turn typed place names into coordinates and back into short area names. Map data © OpenStreetMap contributors, ODbL.
 
 ## Privacy
 
@@ -147,7 +151,7 @@ HawaSaathi stores only what it needs to send useful alerts:
 - **Feedback:** your Yes/No answer to "Did this change your plan?".
 - **Questions:** the text of questions you ask, and when you asked them.
 
-It does **not** store names, usernames or phone numbers. Your question text and profile are sent to Groq to generate an answer. Your location is sent to Open-Meteo, and typed place names to Nominatim. The database is locked with Row Level Security, so only the server's key can read it. The `/stats` page shows totals only. To have your data deleted, open an issue or contact the maintainer.
+It does **not** store names, usernames or phone numbers. Your question text and profile are sent to Groq to generate an answer. Your location is sent to Open-Meteo, and typed place names to Groq (to clean them up) and to Nominatim/Photon. The database is locked with Row Level Security, so only the server's key can read it. The `/stats` page shows totals only. To have your data deleted, open an issue or contact the maintainer.
 
 ## License
 

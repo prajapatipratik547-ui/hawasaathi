@@ -7,7 +7,7 @@ TEXTS = {
     "en": {
         "ask_location": "Share your location with the button below, or type your area and city (e.g. Kothrud, Pune).",
         "share_location": "📍 Share location",
-        "place_not_found": "I couldn't find that place. Please try again, e.g. Kothrud, Pune.",
+        "place_not_found": "I couldn't find that place. Check the spelling and try again (e.g. Kothrud, Pune), or tap 📍 Share location below.",
         "no_data": "Sorry, I couldn't find air-quality data for that location.",
         "not_enough_data": "Sorry, there isn't enough data to work out the AQI for that location.",
         "your_area": "Your area",
@@ -80,7 +80,7 @@ TEXTS = {
     "hi": {
         "ask_location": "नीचे दिए बटन से अपनी लोकेशन भेजें, या अपना इलाका और शहर लिखें (जैसे: Kothrud, Pune)।",
         "share_location": "📍 लोकेशन भेजें",
-        "place_not_found": "वह जगह नहीं मिली। कृपया फिर से कोशिश करें, जैसे: Kothrud, Pune।",
+        "place_not_found": "वह जगह नहीं मिली। स्पेलिंग जाँचकर फिर से लिखें (जैसे: Kothrud, Pune), या नीचे 📍 लोकेशन भेजें बटन दबाएँ।",
         "no_data": "माफ़ कीजिए, इस जगह के लिए हवा की गुणवत्ता का डेटा नहीं मिला।",
         "not_enough_data": "माफ़ कीजिए, इस जगह का AQI निकालने के लिए पर्याप्त डेटा नहीं है।",
         "your_area": "आपका इलाका",
@@ -153,7 +153,7 @@ TEXTS = {
     "mr": {
         "ask_location": "खालील बटणाने तुमचे लोकेशन पाठवा, किंवा तुमचा भाग आणि शहर लिहा (उदा. Kothrud, Pune).",
         "share_location": "📍 लोकेशन पाठवा",
-        "place_not_found": "ती जागा सापडली नाही. कृपया पुन्हा प्रयत्न करा, उदा. Kothrud, Pune.",
+        "place_not_found": "ती जागा सापडली नाही. स्पेलिंग तपासून पुन्हा लिहा (उदा. Kothrud, Pune), किंवा खालील 📍 लोकेशन पाठवा बटण दाबा.",
         "no_data": "माफ करा, या ठिकाणासाठी हवेच्या गुणवत्तेचा डेटा मिळाला नाही.",
         "not_enough_data": "माफ करा, या ठिकाणाचा AQI काढण्यासाठी पुरेसा डेटा नाही.",
         "your_area": "तुमचा भाग",

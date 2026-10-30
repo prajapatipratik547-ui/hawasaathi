@@ -16,14 +16,24 @@ class LLMError(Exception):
     pass
 
 
-def chat(messages: list, tools: Optional[list] = None, timeout: float = 15.0, tool_choice: Optional[str] = None) -> dict:
+def chat(
+    messages: list,
+    tools: Optional[list] = None,
+    timeout: float = 15.0,
+    tool_choice: Optional[str] = None,
+    model: Optional[str] = None,
+    json_mode: bool = False,
+) -> dict:
     """Send the conversation and return the assistant's message: {"content": ..., "tool_calls": [...]}."""
     key = os.getenv("GROQ_API_KEY")
     if not key:
         raise LLMError("GROQ_API_KEY is not set")
 
-    model = os.getenv("GROQ_MODEL") or DEFAULT_MODEL
+    model = model or os.getenv("GROQ_MODEL") or DEFAULT_MODEL
     payload = {"model": model, "messages": messages, "temperature": 0.3}
+    if json_mode:
+        payload["response_format"] = {"type": "json_object"}
+        payload["temperature"] = 0
     if model.startswith("openai/gpt-oss"):
         # gpt-oss "thinks" before answering; low keeps it fast and inside the free tier's tokens-per-minute limit
         payload["reasoning_effort"] = "low"
