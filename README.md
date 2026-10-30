@@ -28,11 +28,26 @@ Air-quality data exists, but it sits in apps and dashboards people don't check, 
    **Type any place, any way:** an area, city, landmark or PIN code, in English, हिंदी or मराठी, with typos or as a sentence. *"Lohegoan, Pune"*, *"mera ghar kothrud me hai"*, *"near Pune station"*, *"PCMC"*, *"411014"* and *"London"* all work. An AI model cleans up the text, and OpenStreetMap finds the coordinates.
 2. **Morning alert** (7 AM IST): today's India AQI near you, advice for *your* profile, and the cleanest 2-hour window to go outside.
    **Official data first:** when a government (CPCB) monitoring station within 10 km has reported in the last 4 hours, the AQI is its measured 24-hour average, e.g. *"🏭 Official CPCB station: Mhada Colony, Pune, 2.2 km away (updated 11:00)"*. Everywhere else it's a satellite/model estimate, labelled *"🛰️ satellite/model estimate"*. Every reply says which one it is.
-3. **Spike alert**: a short warning when the air turns *Very Poor* or gets worse than at your last alert (at most one every 3 hours, none at night).
+3. **Spike alert**: a short warning when the air turns *Very Poor*, or gets worse than at your last alert and is now harmful for you: *Poor*, or *Moderate* for children, people over 60, and anyone with a lung or heart condition or who is pregnant. At most one every 3 hours, none at night.
 4. **Ask anything**: free-text questions are answered by an AI agent that looks up live data and your profile. It never guesses numbers.
    **🎙️ Or just speak:** send a voice message in Hindi, Marathi or English, as a question or (while onboarding) to say your area. Whisper turns it into text, the bot shows *"🎙️ I heard: …"*, and answers as if you had typed it. This helps elderly people and anyone who finds typing hard.
 5. **Impact button** under every alert: *"Did this change your plan? ✅ Yes / ❌ No"*.
 6. **Public `/stats` page**: users, alerts sent and the % who said an alert changed their plan. Counts only, no personal data.
+
+### Screenshots
+
+<table>
+  <tr>
+    <td width="33%"><img src="assets/screenshots/1-onboarding.png" alt="Onboarding: language, a misspelled area, three quick questions"></td>
+    <td width="33%"><img src="assets/screenshots/2-invite.png" alt="Onboarding finished, with the Invite your family button"></td>
+    <td width="33%"><img src="assets/screenshots/3-cpcb-and-voice.png" alt="A voice question, then answers from CPCB stations in Pune and Surat"></td>
+  </tr>
+  <tr>
+    <td><b>Onboarding.</b> A misspelled area (<i>"Lohegoan, Pune"</i>) is understood, then 3 quick questions answered with buttons.</td>
+    <td><b>All set.</b> Every answer is confirmed in place, and an <i>Invite your family</i> button shares the bot.</td>
+    <td><b>Voice + official data.</b> A spoken question is answered. After the CPCB update, the same area reads 87 from a station 3.2 km away, not the satellite's 26. Other cities (Surat) work too.</td>
+  </tr>
+</table>
 
 `/settings` changes your language, location and answers at any time. `/invite` (also a button after onboarding) shares the bot with family and friends in your language. `/delete` erases all your data.
 
@@ -115,12 +130,12 @@ copy .env.example .env     # then fill in your own values
    ```
 3. **Send alerts now** to test them: `.\.venv\Scripts\python.exe scripts\tick.py --force`
 4. **Run the end-to-end test** (about a minute): `.\.venv\Scripts\python.exe tests\e2e_test.py`
-   It runs 77 checks against the real database, air-data APIs and AI, with only Telegram faked:
+   It runs 83 checks against the real database, air-data APIs and AI, with only Telegram faked:
    - onboarding in all 3 languages
    - CPCB station lookup, including what happens when OpenAQ is down
    - AI answers in the right language with the 108 line
    - the daily question limit
-   - morning alerts and the one-answer-per-alert feedback
+   - morning alerts, the spike-alert rule and the one-answer-per-alert feedback
    - error messages
    - webhook and cron secrets
    - the `/stats` page showing no personal data

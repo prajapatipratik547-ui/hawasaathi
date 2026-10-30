@@ -3,7 +3,7 @@ import asyncio
 from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
-from air.advice import EMOJI, best_time_outside, build_advice, level
+from air.advice import EMOJI, best_time_outside, build_advice, is_sensitive, level
 from air.current import current_air
 from air.openmeteo import get_forecast
 from bot.telegram import Telegram
@@ -60,7 +60,7 @@ async def check_user(telegram: Telegram, user: dict, now: datetime, force: bool)
         return "morning"
 
     last = await asyncio.to_thread(store.last_alert, user["telegram_id"])
-    if spike_due(category, last, now):
+    if spike_due(user, category, last, now):
         await send_alert(telegram, user, "spike", aqi, category, spike_text(user, aqi, category, station))
         return "spike"
 
@@ -80,8 +80,9 @@ def morning_due(user: dict, last_morning, now: datetime) -> bool:
     return last_morning is None or sent_at(last_morning).date() != now.date()
 
 
-def spike_due(category: str, last, now: datetime) -> bool:
-    """True if the air is Very Poor or worse, or worse than at the last alert, and that was 3+ hours ago."""
+def spike_due(user: dict, category: str, last, now: datetime) -> bool:
+    """True if the air is Very Poor or worse, or worse than at the last alert and now harmful for this
+    user (Poor, or Moderate for sensitive people), and the last alert was 3+ hours ago."""
     quiet_start, quiet_end = QUIET_HOURS
     if now.hour >= quiet_start or now.hour < quiet_end:
         return False
@@ -89,7 +90,10 @@ def spike_due(category: str, last, now: datetime) -> bool:
         return False
     if level(category) >= level("Very Poor"):
         return True
-    return last is not None and last.get("category") in EMOJI and level(category) > level(last["category"])
+    # Good -> Satisfactory is a rise, but nothing to warn about
+    harmful = level("Moderate") if is_sensitive(user) else level("Poor")
+    rose = last is not None and last.get("category") in EMOJI and level(category) > level(last["category"])
+    return rose and level(category) >= harmful
 
 
 def for_you_line(user: dict, category: str) -> str:

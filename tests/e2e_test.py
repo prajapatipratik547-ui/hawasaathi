@@ -11,7 +11,7 @@ import os
 import sys
 import time
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -204,6 +204,21 @@ try:
         run(tap(uid, f"fb:{last['id']}:0", alert_msg["id"]))  # second tap must not count
         rows = store._request("GET", "feedback", params={"alert_id": f"eq.{last['id']}", "select": "changed_plan"})
         check(f"{uid}: feedback saved once, first answer kept", rows == [{"changed_plan": True}], str(rows))
+
+    print("\n=== spike alert rule ===")
+    noon = now.replace(hour=15, minute=0)
+    adult, heart = {"age_group": "adult", "condition": "none"}, {"age_group": "adult", "condition": "heart"}
+
+    def earlier(category, hours=4):
+        return {"category": category, "sent_at": (noon - timedelta(hours=hours)).isoformat()}
+
+    check("Good -> Satisfactory: no alert", not alerts.spike_due(adult, "Satisfactory", earlier("Good"), noon))
+    check("Satisfactory -> Moderate: alert only for sensitive people",
+          not alerts.spike_due(adult, "Moderate", earlier("Satisfactory"), noon) and alerts.spike_due(heart, "Moderate", earlier("Satisfactory"), noon))
+    check("Moderate -> Poor: alert", alerts.spike_due(adult, "Poor", earlier("Moderate"), noon))
+    check("Very Poor: alert even without a rise", alerts.spike_due(adult, "Very Poor", earlier("Very Poor"), noon))
+    check("at most one alert per 3 hours", not alerts.spike_due(adult, "Very Poor", earlier("Poor", hours=1), noon))
+    check("no alerts at night", not alerts.spike_due(adult, "Severe", None, noon.replace(hour=23)))
 
     print("\n=== /settings, unknown text, errors ===")
     run(msg(-900002, "/settings"))
